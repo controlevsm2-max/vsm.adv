@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -135,4 +136,142 @@
     <script src="script.js"></script>
 </body>
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ERP VSM2 - Sistema de Gestão</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div id="customAlert"></div>
+
+    <div class="sidebar">
+        <div class="logo">VSM</div>
+        <ul class="menu">
+            <li class="active"><i class="fas fa-home"></i> Dashboard</li>
+            <li><i class="fas fa-users"></i> Clientes</li>
+            <li><i class="fas fa-chart-bar"></i> Relatórios</li>
+        </ul>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <input class="search" id="inputBusca" onkeyup="buscarTabela()"
+                placeholder="Pesquisar cliente, CPF ou pasta...">
+            <button class="btn" onclick="abrirNovo()">
+                <i class="fas fa-plus"></i> Novo Cliente
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pasta</th>
+                        <th>Cliente / CPF</th>
+                        <th>Valor</th>
+                        <th>% Êxito</th>
+                        <th>Tipo Serviço</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Grupo</th>
+                        <th>Ref. Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela">
+                    <!-- Dados serão inseridos via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modalMaster" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h2 style="margin-bottom:20px;">
+                <i class="fas fa-user-plus"></i> Cadastro de Cliente
+            </h2>
+            <form id="formMaster">
+                <input type="hidden" id="field_id">
+
+                <div class="form-row">
+                    <div style="width:70%" class="input-group">
+                        <label>Cliente <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="field_cliente" required style="text-transform:uppercase"
+                            placeholder="NOME DO CLIENTE">
+                    </div>
+                    <div style="width:30%" class="input-group">
+                        <label>Grupo <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="field_grupo" required style="text-transform:uppercase"
+                            placeholder="A, B, C...">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div style="width:20%" class="input-group">
+                        <label>Pasta <span style="color:#ef4444;">*</span></label>
+                        <input type="number" id="field_pasta" required placeholder="123">
+                    </div>
+                    <div style="width:30%" class="input-group">
+                        <label>CPF/CNPJ</label>
+                        <input type="text" id="field_cpf" placeholder="000.000.000-00" oninput="mascararCPF(this)">
+                    </div>
+                    <div style="width:30%" class="input-group">
+                        <label>Valor do Contrato</label>
+                        <input type="text" id="money_field" placeholder="R$ 0,00">
+                    </div>
+                    <div style="width:20%" class="input-group">
+                        <label>% Êxito</label>
+                        <input type="number" id="field_exito" placeholder="0" min="0" max="100">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div style="width:40%" class="input-group">
+                        <label>Serviço</label>
+                        <input type="text" id="field_servico" placeholder="Tipo de serviço">
+                    </div>
+                    <div style="width:30%" class="input-group">
+                        <label>Data Entrada</label>
+                        <input type="date" id="field_entrada">
+                    </div>
+                    <div style="width:30%" class="input-group">
+                        <label>Status</label>
+                        <select id="field_status" onchange="toggleCancelamento(this.value)">
+                            <option value="Estável">Estável</option>
+                            <option value="Atenção">Atenção</option>
+                            <option value="Exceção">Exceção</option>
+                            <option value="Risco">Risco</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="group_cancelamento" class="form-row hidden">
+                    <div style="width:100%" class="input-group">
+                        <label style="color:#ef4444">Data de Cancelamento</label>
+                        <input type="date" id="field_saida">
+                    </div>
+                </div>
+
+                <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn-cancel" onclick="fecharModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+>>>>>>> 9fc10b1bb71464f5c0e3da148edb13c4e2572bd6
 </html>

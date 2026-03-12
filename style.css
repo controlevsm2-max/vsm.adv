@@ -1,3 +1,4 @@
+
 * { 
     margin: 0; 
     padding: 0; 
@@ -247,7 +248,7 @@ input:focus, select:focus {
 
 .btn-cancel { 
     background: #f1f5f9; 
-    color: #475569; 
+    color: #475569;     
     border: none; 
     padding: 12px 25px; 
     border-radius: 8px; 

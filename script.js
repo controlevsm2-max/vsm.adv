@@ -1,5 +1,5 @@
 // Configuração da API
-const API_URL = 'https://washing-become-symbols-coupons.trycloudflare.com';
+const API_URL = 'http://localhost:3000/clientes';
 
 // ================== FUNÇÕES DO MODAL ==================
 function abrirNovo() {
@@ -7,30 +7,24 @@ function abrirNovo() {
     document.getElementById('field_id').value = '';
     document.getElementById('group_cancelamento').classList.add('hidden');
     document.getElementById('modalMaster').classList.remove('hidden');
-    
-    // Data atual automática
-    const hoje = new Date().toISOString().split('T')[0];
-    document.getElementById('field_entrada').value = hoje;
+    document.getElementById('field_cliente').focus();
 }
 
 function abrirEditar(cliente) {
     document.getElementById('field_id').value = cliente.id;
-    document.getElementById('field_pasta').value = cliente.pasta;
     document.getElementById('field_cliente').value = cliente.cliente;
+    document.getElementById('field_grupo').value = cliente.grupo;
+    document.getElementById('field_pasta').value = cliente.pasta;
     document.getElementById('field_cpf').value = cliente.cpf_cnpj || '';
     
     // Formatar valor para exibição
-    const valorFormatado = 'R$ ' + parseFloat(cliente.valor_contrato || 0)
-        .toFixed(2)
-        .replace('.', ',')
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+    const valorFormatado = 'R$ ' + parseFloat(cliente.valor_contrato).toFixed(2).replace('.', ',');
     document.getElementById('money_field').value = valorFormatado;
     
     document.getElementById('field_exito').value = cliente.percentual_exito || 0;
-    document.getElementById('field_servico').value = cliente.tipo_servico || '';
-    document.getElementById('field_grupo').value = cliente.grupo;
-    document.getElementById('field_entrada').value = cliente.data_entrada;
+    document.getElementById('field_servico').value = cliente.servico || '';
     document.getElementById('field_status').value = cliente.status;
+    document.getElementById('field_entrada').value = cliente.data_entrada;
     document.getElementById('field_saida').value = cliente.data_saida || '';
     
     if (cliente.status === 'Cancelado') {
@@ -49,9 +43,6 @@ function fecharModal() {
 function toggleCancelamento(valor) {
     if (valor === 'Cancelado') {
         document.getElementById('group_cancelamento').classList.remove('hidden');
-        // Sugerir data de hoje para cancelamento
-        const hoje = new Date().toISOString().split('T')[0];
-        document.getElementById('field_saida').value = hoje;
     } else {
         document.getElementById('group_cancelamento').classList.add('hidden');
     }
@@ -68,6 +59,7 @@ function mascararCPF(input) {
     input.value = value;
 }
 
+// Máscara de dinheiro
 function mascararDinheiro() {
     const moneyField = document.getElementById('money_field');
     if (moneyField) {
@@ -91,9 +83,6 @@ async function carregarDados() {
         const response = await fetch(API_URL);
         const clientes = await response.json();
         renderizarTabela(clientes);
-        
-        // Mostrar total no console
-        console.log(`📊 Total de clientes carregados: ${clientes.length}`);
     } catch (error) {
         showAlert('Erro ao carregar dados: ' + error.message, 'error');
     }
@@ -113,15 +102,10 @@ function renderizarTabela(lista) {
         const dataRef = isCancelado ? cli.data_saida : cli.data_entrada;
         const dataFormatada = dataRef ? new Date(dataRef).toLocaleDateString('pt-BR') : '00/00/0000';
         
-        const valorFormatado = parseFloat(cli.valor_contrato || 0).toLocaleString('pt-BR', {
+        const valorFormatado = parseFloat(cli.valor_contrato).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
-
-        // Remover acentos para a classe CSS
-        const statusClass = cli.status
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '');
 
         corpo.innerHTML += `
             <tr>
@@ -132,9 +116,9 @@ function renderizarTabela(lista) {
                 </td>
                 <td><strong>R$ ${valorFormatado}</strong></td>
                 <td>${cli.percentual_exito || 0}%</td>
-                <td>${cli.tipo_servico || '-'}</td>
+                <td>${cli.servico || '-'}</td>
                 <td class="text-center">
-                    <span class="status st-${statusClass}">${cli.status}</span>
+                    <span class="status st-${cli.status.replace('ã', 'a').replace('ç', 'c')}">${cli.status}</span>
                 </td>
                 <td class="text-center"><strong>${cli.grupo}</strong></td>
                 <td style="${isCancelado ? 'color:#ef4444; font-weight:bold;' : ''}">
@@ -172,16 +156,16 @@ document.getElementById('formMaster').onsubmit = async function(e) {
     }
 
     const dados = {
-        pasta: parseInt(document.getElementById('field_pasta').value) || 0,
         cliente: document.getElementById('field_cliente').value.toUpperCase(),
-        cpf_cnpj: document.getElementById('field_cpf').value || '',
+        grupo: document.getElementById('field_grupo').value.toUpperCase(),
+        pasta: parseInt(document.getElementById('field_pasta').value) || 0,
         valor_contrato: valorContrato,
         percentual_exito: parseInt(document.getElementById('field_exito').value) || 0,
-        tipo_servico: document.getElementById('field_servico').value.toUpperCase() || '',
-        grupo: document.getElementById('field_grupo').value.toUpperCase(),
-        data_entrada: document.getElementById('field_entrada').value || null,
+        servico: document.getElementById('field_servico').value.toUpperCase() || '',
         status: document.getElementById('field_status').value,
-        data_saida: document.getElementById('field_saida').value || null
+        data_entrada: document.getElementById('field_entrada').value || null,
+        data_saida: document.getElementById('field_saida').value || null,
+        cpf_cnpj: document.getElementById('field_cpf').value || ''
     };
 
     const id = document.getElementById('field_id').value;
@@ -230,7 +214,7 @@ async function excluirCliente(id) {
 async function buscarTabela() {
     const termo = document.getElementById('inputBusca').value.toLowerCase();
     
-    if (termo.length < 2) {
+    if (termo.length < 1) {
         carregarDados();
         return;
     }
@@ -243,8 +227,7 @@ async function buscarTabela() {
             cli.cliente.toLowerCase().includes(termo) ||
             (cli.cpf_cnpj && cli.cpf_cnpj.replace(/\D/g, '').includes(termo.replace(/\D/g, ''))) ||
             cli.pasta.toString().includes(termo) ||
-            (cli.tipo_servico && cli.tipo_servico.toLowerCase().includes(termo)) ||
-            (cli.grupo && cli.grupo.toLowerCase().includes(termo))
+            (cli.servico && cli.servico.toLowerCase().includes(termo))
         );
         
         renderizarTabela(filtrados);
@@ -288,12 +271,4 @@ document.addEventListener('DOMContentLoaded', function() {
             fecharModal();
         }
     });
-    
-    // Mostrar total de clientes
-    fetch(`${API_URL}/total`)
-        .then(r => r.json())
-        .then(data => {
-            console.log(`📊 Total no banco: ${data.total} clientes`);
-        })
-        .catch(console.error);
 });
